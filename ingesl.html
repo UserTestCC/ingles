@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buscador de Plantillas – Indurama</title>
+  <link rel="icon" type="image/jpeg" href="favicon_ind.jpg">
+
+  <style>
+    :root{
+      --bg:#3C4C5B ;--card:#0b1222;--ink:#e5e7eb;--muted:#a1a1aa;--line:#1f2937;--accent:#60a5fa;--accent2:#22d3ee;--ring:rgba(96,165,250,.35)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1000px 700px at 15% -10%,#0b1227,var(--bg));color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif}
+    .wrap{max-width:1000px;margin:28px auto;padding:0 14px}
+    h1{font-size:clamp(22px,3vw,32px);margin:0 0 4px;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+    .dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 18px var(--ring)}
+    p.muted{color:#94a3b8;margin:8px 0 18px}
+    .bar{position:sticky;top:0;z-index:5;backdrop-filter:blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.9),rgba(15,23,42,.6) 70%,transparent);padding:8px 0 16px}
+    .field{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:8px 8px 8px 10px;box-shadow:0 0 0 0 var(--ring)}
+    .field:focus-within{box-shadow:0 0 0 4px var(--ring);border-color:#1C2630}
+    input[type=text]{flex:1;background:transparent;border:0;outline:none;color:var(--ink);font-size:16px;padding:10px}
+   
+ .pill{
+  font-size:12px;
+  border:1px solid #334155;
+  border-radius:999px;
+  padding:2px 8px;
+  background:rgba(96,165,250,.12);
+  color:#bfdbfe;
+  display:inline-flex;      /* clave para que se alineen */
+  align-items:center;
+  text-decoration:none;
+}
+
+/* Contenedor de los links en fila */
+.notices{
+  display:flex;             /* en fila */
+  gap:8px;                  /* espacio entre pills */
+  flex-wrap:wrap;           /* si no caben, pasan a la siguiente línea */
+}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:16px}
+    .card{background:linear-gradient(180deg,#23313D,#0b1224);border:1px solid var(--line);border-radius:16px;padding:14px;position:relative}
+    .card:hover{border-color:#1C2630}
+    .card h3{margin:0 44px 8px 0;font-size:16px}
+    .copy{position:absolute;top:10px;right:10px}
+    .btn{cursor:pointer;border:1px solid var(--line);background:#0b1222;color:var(--ink);padding:8px 12px;border-radius:12px;font-weight:700}
+    .btn.small{font-size:12px;padding:6px 10px;border-radius:10px}
+    .btn.ghost{background:transparent}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .empty{padding:28px;text-align:center;color:#9ca3af}
+    .hl { background: rgba(255, 230, 0, 0.4); padding: 0 .1em; border-radius: 4px; }
+   
+   .footer.simple {
+  margin: 30px 0 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8; /* gris suave */
+  letter-spacing: 0.5px;
+
+
+
+
+}
+    
+    .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+    /* Texto vs HTML dentro de tarjetas */
+    .card .b.text{
+      white-space:pre-wrap;word-wrap:break-word;margin:0;color:#d1d5db;font-family:inherit;
+    }
+    .card .b.html{white-space:normal;margin:0;color:#d1d5db;font-family:inherit;}
+    .card .b.html *{font-family:inherit}
+
+    /*imag dentro de la tarjeta */
+    
+    .card .b.text img, .card .b.html img{
+      max-width:100%;max-height:500px;object-fit:contain;display:block;margin:8px auto;border-radius:10px;
+    }
+
+    /* Tarjetas anchas (p.ej., boletín) */
+    .card.wide{grid-column:1 / -1}
+
+    /* ===== Modal “Ver grande” ===== */
+      
+
+dialog.viewer{border:none;padding:0;background:transparent;max-width:96vw}
+dialog.viewer::backdrop{background:rgba(0,0,0,.7)}
+.viewer-box{
+  background:#0f172a;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px;
+  max-width:min(1100px,96vw);
+  color:#9ca3af; /* ← gris del texto en el visor */
+}
+.viewer-actions{display:flex;justify-content:flex-end;margin-bottom:8px}
+.viewer-close{border:1px solid var(--line);background:#0b1222;color:#e5e7eb;border-radius:10px;padding:6px 10px;cursor:pointer}
+.viewer-body{color:inherit} /* hereda el gris del contenedor */
+.viewer-body x-carousel-card{display:block;width:min(100%,1000px)}
+
+//ANIMACIONES
+
+
+
+/* —— Formulario incidente —— */
+.formbox{display:grid;gap:10px;margin-top:6px}
+.formbox label{font-size:13px;color:#cbd5e1}
+.formbox input,.formbox textarea{
+  background:#0b1222;border:1px solid var(--line);color:var(--ink);
+  border-radius:10px;padding:10px;font:inherit;outline:none
+}
+.formbox input:focus,.formbox textarea:focus{box-shadow:0 0 0 3px var(--ring);border-color:#334155}
+.formbox textarea{min-height:120px;resize:vertical}
+.formbox .row{display:flex;gap:8px}
+.formbox .row > *{flex:1}
+.formbox .status{font-size:13px;color:#93c5fd}
+
+
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+ 
+
+<h2 class="titulo-sombra"></h2>
+
+<style>
+.titulo-sombra{
+  text-align:center;
+  color:#fff;
+  font-weight:800;
+  font-size:clamp(22px,3vw,32px);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.35),
+    0 4px 12px rgba(0,0,0,.35),
+    0 0 12px rgba(255,255,255,.15);
+}
+</style>
+
+
+
+
+   
+
+    <p class="muted">Escribe una palabra (ejemplo: <em>garantía</em>, <em>Perú</em>, <em>orden</em>, <em>no contactabilidad</em>).</p>
+
+    <div class="bar">
+      <div class="field">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/3000/svg" aria-hidden="true"><path d="M21 21L15.8 15.8M18 10.5A6.5 6.5 0 1 1 5 10.5a6.5 6.5 0 0 1 13 0Z" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="q" type="text" placeholder="Buscar" autocomplete="off"/>
+        <button id="clear" class="btn small ghost">Limpiar</button>
+      </div>
+
+    
+ 
+<style>
+@keyframes mover {
+  0% { transform: translateX(10px); }
+  50% { transform: translateX(-10px); }
+  100% { transform: translateX(10px); }
+}
+h5 {
+  font-family: system-ui, sans-serif;
+  text-align: center;
+  animation: mover 6s ease-in-out infinite;
+  color: #e5e7eb;
+  letter-spacing: .5px;
+}
+</style>
+
+ 
+
+
+<div class="notices">
+
+ <div class="notices">
+
+   
+
+
+  <a class="pill" 
+       href="https://usertestcc.github.io/Plantillas/" 
+       target="_blank" 
+       rel="noopener noreferrer">
+      DA CLICK AQUI Y REGRESA A CONTACT CENTER
+    </a>
+
+
+
+
+
+ 
+
+
+
+
+</div>
+
+
+
+
+      
+    </div>
+
+    <!-- GRID -->
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" hidden>Sin resultados. Prueba con otras palabras o menos términos.</div>
+  </div>
+
+  <!-- Template de tarjeta -->
+  <template id="tpl">
+    <article class="card">
+      <h3 class="t"></h3>
+      <button class="btn small copy">Copiar</button>
+      <pre class="b text"></pre>
+    </article>
+  </template>
+
+  <!-- Modal Viewer -->
+  <dialog id="viewerDlg" class="viewer">
+    <div class="viewer-box">
+      <div class="viewer-actions">
+        <button id="viewerClose" class="viewer-close" autofocus>Cerrar ✕</button>
+      </div>
+      <div id="viewerContent" class="viewer-body"></div>
+    </div>
+  </dialog>
+
+  <!-- ===== Lógica del buscador ===== -->
+  <script>
+    const strip = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const $ = sel => document.querySelector(sel);
+
+    // ======= DATA =======
+    const DATA = [
+
+
+
+
+
+
+
+ {
+  name: 'Inglés — Saludo básico y derivar a WhatsApp',
+  wide: true,
+  body: `
+<style>
+  .board-en{
+    margin-top:4px;
+    padding:16px 18px;
+    border-radius:14px;
+   
+    border:1px solid rgba(148,163,184,.45);
+    box-shadow:0 12px 35px rgba(0,0,0,.45);
+    color:#f9fafb;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .board-en .be-title{
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:10px;
+    border-bottom:1px dashed rgba(148,163,184,.7);
+    padding-bottom:6px;
+  }
+  .board-en .be-note{
+    font-size:13px;
+    color:#cbd5f5;
+    margin-bottom:12px;
+  }
+  .board-en .be-row{
+    margin-bottom:14px;
+  }
+  .board-en .be-label{
+    font-weight:600;
+    margin-bottom:4px;
+    color:#bfdbfe;
+  }
+  .board-en .be-box{
+    background:rgba(15,23,42,.85);
+    border-radius:10px;
+    border:1px dashed rgba(148,163,184,.6);
+    padding:8px 10px;
+  }
+  .board-en .be-line{ margin-bottom:4px; }
+  .board-en .be-tag{
+    display:inline-block;
+    min-width:32px;
+    padding:2px 6px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:600;
+    text-align:center;
+    margin-right:6px;
+    background:rgba(15,118,110,.85);
+    color:#e0f2f1;
+  }
+  .board-en .be-tag.en{ background:rgba(37,99,235,.85); }
+  .board-en .be-tag.pro{ background:rgba(234,179,8,.9); color:#111827; }
+  .board-en .be-small{
+    font-size:12px;
+    color:#e5e7eb;
+    margin-top:2px;
+  }
+</style>
+
+<div class="board-en">
+  <div class="be-title"> </div>
+  <div class="be-note">
+    Cuando el operador <b>no habla inglés</b>, usa este guion para saludar, explicar y derivar al canal de WhatsApp.
+  </div>
+
+  <div class="be-row">
+    <div class="be-label"> Operador — Saludo</div>
+    <div class="be-box">
+      <div class="be-line">
+        <span class="be-tag">ES</span>
+        Hola, mi nombre es _____. No hablo inglés. Contáctanos por WhatsApp.
+      </div>
+      <div class="be-line">
+        <span class="be-tag en">EN</span>
+        Hello, my name is _____. I don’t speak English. Please contact us by WhatsApp.
+      </div>
+      <div class="be-line">
+        <span class="be-tag pro">PRO</span>
+        Hélou, mai neim is _____. Ai don’t spík Ínglish. Plís contac as bai uatsáp.
+      </div>
+    </div>
+  </div>
+
+  <div class="be-row">
+    <div class="be-label">  Cliente — Pregunta</div>
+    <div class="be-box">
+      <div class="be-line">
+        <span class="be-tag en">EN</span>
+        What is your WhatsApp number?
+      </div>
+      <div class="be-small">¿Cuál es tu número de WhatsApp?</div>
+    </div>
+  </div>
+
+  <div class="be-row">
+    <div class="be-label">  Operador — Respuesta con número</div>
+    <div class="be-box">
+      <div class="be-line">
+        <span class="be-tag en">EN</span>
+        The number is: 0 9 9 9 3 0 3 0 3 0.
+      </div>
+      <div class="be-line">
+        <span class="be-tag pro">PRO</span>
+        Dá númber is: zérou náin náin náin thrí zérou thrí zérou thrí zérou.
+      </div>
+      <div class="be-line">
+        <span class="be-tag">ES</span>
+        El número es: 0 9 9 9 3 0 3 0 3 0.
+      </div>
+    </div>
+  </div>
+
+  <div class="be-row">
+    <div class="be-label">  Operador — Despedida</div>
+    <div class="be-box">
+      <div class="be-line">
+        <span class="be-tag en">EN</span>
+        Thank you for contacting us. Have a nice day.
+      </div>
+      <div class="be-line">
+        <span class="be-tag pro">PRO</span>
+        Zánk iu for contáctin as. Jav a nais dei.
+      </div>
+      <div class="be-line">
+        <span class="be-tag">ES</span>
+        Gracias por contactarnos. Que tenga un buen día.
+      </div>
+    </div>
+  </div>
+</div>
+`
+},
+
+
+
+ 
+{
+  name: 'Inglés — Expresiones Comunes',
+  wide: true,
+  body: `
+¡Felicidades! — Congratulations!
+¿Habla usted español? — Do you speak Spanish?
+Disculpe, por favor — Excuse me, please
+Buenos días — Good morning
+Buenas tardes — Good afternoon
+Buenas noches — Good evening
+Buenas noches (al despedirse) — Good night
+Hola / Adiós — Hi / Goodbye
+¿Cómo estás? — How are you?
+¿Cómo te va? — How are you doing?
+Lo siento — I am sorry
+Estoy bien, gracias — I am well, thank you
+Creo que sí — I guess so
+Creo que no — I don't think so
+No importa — It doesn't matter
+¡Por supuesto! — Of course!
+¿En serio? — Really?
+Seguro — Sure
+No importa — Never mind
+Gracias — Thank you
+De nada — You're welcome
+¿Cómo se llama usted? — What's your name?
+¿De dónde es usted? — Where are you from?
+Tiene razón / Está equivocado — You are right / You are wrong
+`
+},
+
+
+
+{
+  name: 'Inglés — Aeropuerto',
+  wide: true,
+  body: `
+¿Tiene su tarjeta de embarque? — Do you have your boarding pass?
+Abróchense los cinturones, por favor — Fasten your belts, please
+¿Cuánto tiempo antes debo registrarme? — How long before the flight must I check in?
+No tengo nada que declarar — I have nothing to declare
+Quiero un boleto de ida — I want a one-way ticket
+Quiero un boleto de ida y vuelta — I want a round-trip ticket
+¿Es un vuelo directo? — Is it a direct flight?
+¿Está demorado el avión? — Is the plane delayed?
+¿Hay escala? — Is there a stopover?
+Mire el horario — Look at the timetable
+El avión está aterrizando — The plane is landing
+El avión está despegando — The plane is taking off
+¿Cuál es mi número de vuelo? — What's my flight number?
+¿Cuándo sale el avión? — When does the plane leave?
+¿Dónde está mi asiento? — Where is my seat?
+¿A qué puerta debo ir? — Which gate must I go to?
+`
+},
+
+{
+  name: 'Inglés — Hotel',
+  wide: true,
+  body: `
+¿Tiene habitaciones disponibles? — Do you have any rooms available?
+Quisiera una habitación individual — I would like a single room
+Quisiera una habitación para dos — I would like a double room
+Quisiera un cuarto con dos camas pequeñas — I'd like a room with twin beds
+¿El desayuno está incluido? — Is breakfast included?
+¿Hay aire acondicionado? — Is there air conditioning?
+¿Hay calefacción? — Is there heating?
+¿Podría ver la habitación? — Could I see the room?
+La llave de mi cuarto, por favor — My room key, please
+La habitación es muy pequeña — This room is too small
+La habitación es ruidosa — This room is noisy
+¿A qué hora debo dejar la habitación? — What time is checkout?
+¿Cuál es la tarifa diaria? — What's the daily rate?
+¿Dónde estaciono mi auto? — Where can I park my car?
+`
+},
+
+{
+  name: 'Inglés — Transporte público',
+  wide: true,
+  body: `
+¿Me da un pase, por favor? — Can you give me a transfer, please?
+¿Puede conducir más rápido? — Could you drive faster?
+¿Le importa si abro la ventanilla? — Do you mind if I open the window?
+¿Cuántos puede llevar? — How many passengers can you take?
+¿Cuánto es? — How much is it?
+¿Cada cuánto pasan los buses? — How often do the buses run?
+Me bajo aquí — I get off here
+Necesito llegar al aeropuerto — I need to get to the airport
+¿Hay una parada por aquí? — Is there a bus stop around here?
+Por favor lléveme a… — Please take me to…
+Gracias, quédese el cambio — Thanks, keep the change
+¿Cuál es la próxima parada? — What is the next stop?
+¿Dónde consigo taxi? — Where can I get a taxi?
+`
+},
+
+     {
+  name: 'Inglés — Compras',
+  wide: true,
+  body: `
+¿Están estos artículos en oferta? — Are these articles on sale?
+¿Puedo pagar con tarjeta? — Can I pay by credit card?
+¿Me muestra uno más grande? — Could you show me a bigger one?
+¿Cuánto cuesta? — How much does it cost?
+Quiero comprar un regalo — I want to buy a gift
+¿Puedo probarme esto? — May I try this on?
+Por favor, envuélvalo — Please wrap it up
+Esto es muy caro — This is too expensive
+¿Algo más barato? — Do you have something cheaper?
+¿Dónde están los probadores? — Where are the fitting rooms?
+¿Dónde queda el centro comercial? — Where is the shopping center?
+`
+},
+
+
+{
+  name: 'Inglés — Viaje en bus o tren',
+  wide: true,
+  body: `
+¿Puedo comprar un mapa? — Can I buy a map here?
+¿Debo bajarme aquí? — Do I have to get off here?
+Está sentado en mi asiento — Excuse me, you're in my seat
+¿De qué plataforma sale? — From what platform does it leave?
+¿Cuánto tarda? — How long does it take?
+No encuentro mi equipaje — I can't find my baggage
+Perdí el bus — I missed the bus
+¿Este es el bus a Nueva York? — Is this the bus to New York?
+¿Cuál es la próxima parada? — What's the next stop?
+¿Hacia dónde se dirige? — Where are you heading?
+`
+},
+
+    {
+  name: 'Inglés — Restaurante',
+  wide: true,
+  body: `
+¿Podemos pagar por separado? — Can we pay separately?
+¿Me trae el menú? — Could you bring me the menu?
+Quisiera ordenar ahora — I would like to order now
+Comeré un bife con papas fritas — I'll have a steak with fries
+¿Una botella de vino? — May I have a bottle of wine?
+¿Puede traer más pan? — Could you bring more bread?
+Camarero, la cuenta — Waiter, the check please
+¿Dónde están los baños? — Where are the restrooms?
+¿Qué recomienda? — What do you recommend?
+`
+},
+{
+  name: 'Inglés — Oficina de correos',
+  wide: true,
+  body: `
+¿Puedo enviar un giro postal? — Can I send a money order?
+¿Me ayuda a llenar este formulario? — Can you help me fill out this form?
+¿Puede pesar este paquete? — Could you weigh this package?
+¿Cuánto tarda en llegar? — How long does it take to arrive?
+Necesito sellos — I need some stamps
+Quiero certificar estas cartas — I want to register these letters
+¿Hay una oficina de correos cerca? — Is there a post office nearby?
+¿Dónde hay un buzón? — Where is the mailbox?
+`
+},
+
+
+{
+  name: 'Inglés — Banco',
+  wide: true,
+  body: `
+¿Puedo cobrar cheques aquí? — Can I cash personal checks here?
+¿Me da cambio? — Can I get some change?
+¿Debo firmar este cheque? — Do I have to sign this check?
+¿A cuánto está el cambio? — How much is the exchange rate?
+Necesito billetes pequeños — I need small bills
+Quiero retirar dinero — I want to withdraw money
+Quiero un préstamo — I would like to apply for a loan
+¿Dónde hay un cajero? — Where can I find an ATM?
+¿Dónde queda el banco más cercano? — Where is the nearest bank?
+`
+},
+
+
+{
+  name: 'Inglés — Farmacia',
+  wide: true,
+  body: `
+¿Pastillas para dormir? — Could I have sleeping pills?
+¿Tiene calmantes? — Do you have painkillers?
+Necesito vendas y yodo — I need bandages and iodine
+Quiero pastillas para la tos — I would like cough drops
+Algo para quemadura de sol — I need something for a sunburn
+Quisiera una caja de condones — I'd like a box of condoms
+¿Puedo ayudarlo? — May I help you?
+`
+},
+
+
+{
+  name: 'Inglés — Consulta médica',
+  wide: true,
+  body: `
+Me siento muy enfermo — I am feeling very sick
+No me siento bien — I am not feeling well
+Tengo una quemadura — I have a burn
+Tengo dolor en la espalda — I have pain in my back
+Estoy mareado — I feel dizzy
+Tengo escalofríos — I have chills
+¿Cuáles son los síntomas? — What are the symptoms?
+¿Qué debo tomar? — What medicine should I take?
+¿Es grave? — Is it serious?
+`
+},
+
+{
+  name: 'Inglés — Cine y Teatro',
+  wide: true,
+  body: `
+¿Quedan asientos? — Are there any seats left?
+¿Cuánto dura? — How long does it last?
+Quiero dos boletos — I want two tickets
+¿De qué trata? — What is it about?
+¿A qué hora empieza? — What time does it start?
+¿Dónde están nuestros asientos? — Where are our seats?
+¿Dónde están las taquillas? — Where is the ticket office?
+`
+},
+
+
+{
+  name: 'Inglés — Expresiones Comunes',
+  wide: true,
+  body: `
+<style>
+  .board-duo{
+    margin-top:6px;
+    padding:18px;
+    border-radius:14px;
+    background:rgba(15,23,42,0.85);
+    border:1px solid rgba(148,163,184,0.4);
+    box-shadow:0 12px 35px rgba(0,0,0,0.45);
+    color:#f1f5f9;
+    font-size:14px;
+    line-height:1.55;
+  }
+  .board-duo h3{
+    margin:0 0 12px;
+    font-size:17px;
+    font-weight:700;
+    color:#e2e8f0;
+    text-align:center;
+    text-shadow:0 0 10px rgba(255,255,255,.2);
+  }
+  .duo-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .duo-col div{
+    margin-bottom:8px;
+    padding:6px 8px;
+    background:rgba(255,255,255,0.03);
+    border-radius:8px;
+    border-left:3px solid #38bdf8;
+  }
+  .es{
+    color:#7dd3fc;
+    font-weight:600;
+  }
+</style>
+
+<div class="board-duo">
+  <h3>Expresiones Comunes — Pizarra</h3>
+
+  <div class="duo-grid">
+
+    <!-- Columna izquierda -->
+    <div class="duo-col">
+      <div><span class="es">¡Felicidades!</span> — Congratulations!</div>
+      <div><span class="es">¿Habla usted español?</span> — Do you speak Spanish?</div>
+      <div><span class="es">Disculpe, por favor</span> — Excuse me, please</div>
+      <div><span class="es">Buenos días</span> — Good morning</div>
+      <div><span class="es">Buenas tardes</span> — Good afternoon</div>
+      <div><span class="es">Buenas noches</span> — Good evening</div>
+      <div><span class="es">Buenas noches (al despedirse)</span> — Good night</div>
+      <div><span class="es">Hola / Adiós</span> — Hi / Goodbye</div>
+      <div><span class="es">¿Cómo estás?</span> — How are you?</div>
+      <div><span class="es">¿Cómo te va?</span> — How are you doing?</div>
+      <div><span class="es">Lo siento</span> — I am sorry</div>
+      <div><span class="es">Estoy bien, gracias</span> — I am well, thank you</div>
+    </div>
+
+    <!-- Columna derecha -->
+    <div class="duo-col">
+      <div><span class="es">Creo que sí</span> — I guess so</div>
+      <div><span class="es">Creo que no</span> — I don't think so</div>
+      <div><span class="es">No importa</span> — It doesn't matter</div>
+      <div><span class="es">¡Por supuesto!</span> — Of course!</div>
+      <div><span class="es">¿En serio?</span> — Really?</div>
+      <div><span class="es">Seguro</span> — Sure</div>
+      <div><span class="es">No importa</span> — Never mind</div>
+      <div><span class="es">Gracias</span> — Thank you</div>
+      <div><span class="es">De nada</span> — You're welcome</div>
+      <div><span class="es">¿Cómo se llama usted?</span> — What's your name?</div>
+      <div><span class="es">¿De dónde es usted?</span> — Where are you from?</div>
+      <div><span class="es">Tiene razón / Está equivocado</span> — You are right / You are wrong</div>
+    </div>
+
+  </div>
+</div>
+`
+},
+
+
+
+    ];
+
+    // DOM
+    const grid = $('#grid');
+    const empty = $('#empty');
+    const q = $('#q');
+    const count = $('#count');
+    const clearBtn = $('#clear');
+    const tpl = $('#tpl');
+    const agent = $('#agent');
+
+    // Modal helpers
+    const viewer = $('#viewerDlg');
+    const viewerContent = $('#viewerContent');
+    $('#viewerClose').addEventListener('click', ()=> viewer.close());
+    viewer.addEventListener('click', (e)=>{ if(e.target === viewer) viewer.close(); });
+
+    function openViewer(html){
+      viewerContent.innerHTML = html;
+      viewer.showModal();
+    }
+
+    function highlight(text, term){
+      if(!term) return text;
+      const esc = term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const re = new RegExp(`(${esc})`,'ig');
+      return text.replace(re,'<span class="hl">$1</span>');
+    }
+
+
+
+/////////////
+
+
+
+
+
+
+
+
+
+
+    function render(list, term=''){
+      grid.innerHTML = '';
+      list.forEach(item => {
+        const node = tpl.content.cloneNode(true);
+        const card = node.querySelector('.card');
+        const h3 = node.querySelector('.t');
+        const pre = node.querySelector('.b.text');
+        const btn = node.querySelector('.copy');
+
+        if(item.wide) card.classList.add('wide');
+        h3.innerHTML = highlight(item.name, term);
+
+        const hasHTML = /<[^>]+>/.test(item.body);
+
+        if(hasHTML){
+  const htmlBox = document.createElement('div');
+  htmlBox.className = 'b html';
+  htmlBox.innerHTML = item.body;
+  pre.replaceWith(htmlBox);
+
+  // 👇 Nuevo: si el item es un formulario, no mostrar el botón "Ver grande"
+  if (item.form) {
+    btn.style.display = 'none';
+  } else {
+    btn.textContent = 'Ver grande';
+    btn.style.display = 'inline-block';
+    btn.addEventListener('click', ()=> openViewer(item.body));
+  }
+
+        }else{
+          // Botón copiar para texto
+          pre.innerHTML = highlight(item.body, term);
+          btn.addEventListener('click', async () => {
+            let text = item.body;
+            const a = agent?.value?.trim?.();                 
+            if(a) text = text.replace(/\{\{\s*\}\}/g, a).replace(/\{\{\s*\}\}/g, a);
+            try{
+              await navigator.clipboard.writeText(text);
+              btn.textContent='Copiado ✔';
+              setTimeout(()=>btn.textContent='Copiar',1200);
+            }catch{ alert('No se pudo copiar.'); }
+          });
+        }
+
+        grid.appendChild(node);
+      });
+      count.textContent = `${list.length} de ${DATA.length}`;
+      empty.hidden = list.length !== 0;
+    }
+
+    function doSearch(){
+      const term = q.value.trim();
+      if(!term){ render(DATA); return }
+      const S = strip(term);
+      const results = DATA.filter(it => strip(it.name+"\n"+it.body).includes(S));
+      render(results, term);
+    }
+
+    q.addEventListener('input', doSearch);
+    clearBtn.addEventListener('click', () => { q.value=''; q.focus(); doSearch(); });
+    document.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key === '/'){ e.preventDefault(); q.focus(); }});
+
+    render(DATA);
+
+
+// —— Envío de formulario de incidente ——
+document.addEventListener('submit', async (e) => {
+  const form = e.target;
+  if (form && form.id === 'form-incidente') {
+    e.preventDefault();
+    const msg = form.querySelector('#form-msg');
+
+    const fd = new FormData(form);
+    const operador = (fd.get('operador') || '').trim();
+    const incidencia = (fd.get('incidencia') || '').trim();
+    const ticket = (fd.get('ticket') || '').trim();
+
+    if (!operador || !incidencia) {
+      msg.textContent = 'Completa Operador e Inconveniente.';
+      return;
+    }
+
+    msg.textContent = 'Enviando…';
+
+    try {
+      const res = await fetch('send-mail.php', { method:'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        msg.textContent = 'Enviado ✅';
+        form.reset();
+      } else {
+        msg.textContent = 'No se pudo enviar. ' + (data.msg || '');
+      }
+    } catch (err) {
+      msg.textContent = 'Error de red al enviar.';
+    }
+  }
+});
+
+
+
+
+  </script>
+
+  <!-- ===== Componente Web del Carrusel ===== -->
+  <script>
+    class XCarouselCard extends HTMLElement {
+      static get observedAttributes() { return ["aspect", "autoplay", "interval"]; }
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: "open" });
+        root.innerHTML = `
+          <style>
+            :host { display:block; }
+            .card { border-radius:12px; border:1px solid rgba(255,255,255,.1); background:#0f172a; color:#e2e8f0; overflow:hidden; }
+            .header { padding:10px 12px; font-weight:600; border-bottom:1px solid rgba(255,255,255,.08);}
+            .viewport { position:relative; width:100%; aspect-ratio: var(--aspect, 16/9); background:#0b1220; }
+            .track { display:flex; height:100%; width:100%; transition: transform .35s ease; touch-action: pan-y; }
+            .slide { min-width:100%; height:100%; display:grid; place-items:center; }
+            .slide img { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+            .controls { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; pointer-events:none; }
+            .btn { pointer-events:auto; cursor:pointer; user-select:none; width:36px; height:36px; border:0; border-radius:999px; display:grid; place-items:center; background:rgba(15,23,42,.7); color:#fff; margin:0 6px; }
+            .btn:focus-visible { outline:2px solid #38bdf8; }
+            .dots { position:absolute; left:0; right:0; bottom:8px; display:flex; gap:6px; justify-content:center; }
+            .dot { width:8px; height:8px; border-radius:999px; background:rgba(255,255,255,.35); border:0; padding:0; cursor:pointer; }
+            .dot[aria-current="true"] { background:#fff; }
+            .footer { padding:8px 12px; border-top:1px solid rgba(255,255,255,.08); font-size:.875rem; color:#94a3b8;}
+          </style>
+          <div class="card" part="card">
+            <div class="header" part="header"><slot name="title"></slot></div>
+            <div class="viewport" part="viewport">
+              <div class="track" part="track"></div>
+              <div class="controls">
+                <button class="btn prev" aria-label="Anterior" part="prev">‹</button>
+                <button class="btn next" aria-label="Siguiente" part="next">›</button>
+              </div>
+              <div class="dots" part="dots"></div>
+            </div>
+            <div class="footer" part="footer"><slot name="caption"></slot></div>
+          </div>
+        `;
+
+        this._track = root.querySelector(".track");
+        this._dotsBox = root.querySelector(".dots");
+        this._btnPrev = root.querySelector(".prev");
+        this._btnNext = root.querySelector(".next");
+        this._idx = 0; this._slides = []; this._timer = null;
+
+        this._btnPrev.addEventListener("click", () => this.prev());
+        this._btnNext.addEventListener("click", () => this.next());
+        this._initSlides();
+      }
+
+      attributeChangedCallback(name) {
+        if (name === "aspect") this.style.setProperty("--aspect", this.getAttribute("aspect") || "16/9");
+        if (name === "autoplay" || name === "interval") this._setupAutoplay();
+      }
+
+      connectedCallback() {
+        this.setAttribute("tabindex", "0");
+        this.style.setProperty("--aspect", this.getAttribute("aspect") || "16/9");
+        this._setupAutoplay();
+      }
+
+      disconnectedCallback(){ this._pause(); }
+
+      next(){ this._idx = (this._idx + 1) % this._slides.length; this._update(); }
+      prev(){ this._idx = (this._idx - 1 + this._slides.length) % this._slides.length; this._update(); }
+
+      _initSlides(){
+        const imgs = Array.from(this.querySelectorAll("img"));
+        this._track.innerHTML = "";
+        this._dotsBox.innerHTML = "";
+        this._slides = imgs.map((img, i) => {
+          const wrap = document.createElement("div");
+          wrap.className = "slide";
+          wrap.appendChild(img.cloneNode(true));
+          this._track.appendChild(wrap);
+
+          const dot = document.createElement("button");
+          dot.className = "dot";
+          dot.setAttribute("aria-label", `Ir a la imagen ${i+1}`);
+          dot.addEventListener("click", () => { this._idx = i; this._update(); this._pause(); this._resume(); });
+          this._dotsBox.appendChild(dot);
+          return wrap;
+        });
+        this._idx = 0; this._update();
+      }
+
+      _applyTransform(idx){
+        const offset = -idx * 100;
+        this._track.style.transform = `translateX(${offset}%)`;
+      }
+
+      _update(){
+        if(!this._slides.length) return;
+        this._applyTransform(this._idx);
+        Array.from(this._dotsBox.children).forEach((d,i)=>
+          d.setAttribute("aria-current", i === this._idx ? "true" : "false")
+        );
+      }
+
+      _setupAutoplay(){
+        this._pause();
+        const attr = (this.getAttribute("autoplay") || "").toLowerCase();
+        const enabled = attr === "" || attr === "true";
+        if(!enabled) return;
+        const ms = Number(this.getAttribute("interval")) || 4000;
+        this._timer = setInterval(()=>this.next(), ms);
+        this.addEventListener("mouseenter", ()=>this._pause());
+        this.addEventListener("mouseleave", ()=>this._resume());
+        this.addEventListener("focusin", ()=>this._pause());
+        this.addEventListener("focusout", ()=>this._resume());
+      }
+
+      _pause(){ if(this._timer){ clearInterval(this._timer); this._timer=null; } }
+      _resume(){ if(!this._timer) this._setupAutoplay(); }
+    }
+    customElements.define("x-carousel-card", XCarouselCard);
+
+
+    
+  </script>
+ <div class="footer simple"> <h3> <em> Service Playbook Indurama </h3></em>
+ &copy; 2025 — Ψ Edisson Fernando Fierro C.
+   <p>Versión 1.0</p>
+</div>
+</body>
+</html>
