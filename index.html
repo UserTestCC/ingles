@@ -7,6 +7,11 @@
   <link rel="icon" type="image/jpeg" href="https://flagcdn.com/w20/us.png">
 
   <style>
+
+
+
+
+
     :root{
       --bg:#3C4C5B ;--card:#0b1222;--ink:#e5e7eb;--muted:#a1a1aa;--line:#1f2937;--accent:#60a5fa;--accent2:#22d3ee;--ring:rgba(96,165,250,.35)
     }
@@ -121,7 +126,9 @@ dialog.viewer::backdrop{background:rgba(0,0,0,.7)}
 .formbox .row > *{flex:1}
 .formbox .status{font-size:13px;color:#93c5fd}
 
+//pizarra
 
+.board-duo{ margin-top:6px; padding:18px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.4); box-shadow:0 12px 35px rgba(0,0,0,0.45); color:#f1f5f9; font-size:14px; line-height:1.55; } .board-duo h3{ margin:0 0 12px; font-size:17px; font-weight:700; color:#e2e8f0; text-align:center; text-shadow:0 0 10px rgba(255,255,255,.2); } .duo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; } .duo-col div{ margin-bottom:8px; padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid #B5B3B3; } .es{ color:#C9C789; font-weight:600;
 
   </style>
 </head>
@@ -257,7 +264,7 @@ h5 {
     box-shadow:0 12px 35px rgba(0,0,0,.45);
     color:#f9fafb;
     font-size:14px;
-    line-height:1.6;
+    line-height:1.0;
   }
   .board-en .be-title{
     font-weight:700;
@@ -307,9 +314,7 @@ h5 {
   }
 
 
-//pizarra
 
-.board-duo{ margin-top:6px; padding:18px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.4); box-shadow:0 12px 35px rgba(0,0,0,0.45); color:#f1f5f9; font-size:14px; line-height:1.55; } .board-duo h3{ margin:0 0 12px; font-size:17px; font-weight:700; color:#e2e8f0; text-align:center; text-shadow:0 0 10px rgba(255,255,255,.2); } .duo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; } .duo-col div{ margin-bottom:8px; padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid #; } .es{ color:#C9C789; font-weight:600;
 
 
 </style>
@@ -766,37 +771,7 @@ h5 {
 </div>
 `
 },
-{
-  name: '  Consulta médica',
-  wide: true,
-  body: `
-<div class="board-duo">
-  <h3> </h3>
-
-  <div class="duo-grid">
-
-    <!-- COLUMNA IZQUIERDA -->
-    <div class="duo-col">
-      <div><span class="es">Me siento muy enfermo</span> — I am feeling very sick</div>
-      <div><span class="es">No me siento bien</span> — I am not feeling well</div>
-      <div><span class="es">Tengo una quemadura</span> — I have a burn</div>
-      <div><span class="es">Tengo dolor en la espalda</span> — I have pain in my back</div>
-    </div>
-
-    <!-- COLUMNA DERECHA -->
-    <div class="duo-col">
-      <div><span class="es">Estoy mareado</span> — I feel dizzy</div>
-      <div><span class="es">Tengo escalofríos</span> — I have chills</div>
-      <div><span class="es">¿Cuáles son los síntomas?</span> — What are the symptoms?</div>
-      <div><span class="es">¿Qué debo tomar?</span> — What medicine should I take?</div>
-      <div><span class="es">¿Es grave?</span> — Is it serious?</div>
-    </div>
-
-  </div>
-</div>
-`
-},
-
+ 
 
 
     ];
